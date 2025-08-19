@@ -39,6 +39,7 @@
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(6px);
       text-align: center;
+      animation: fadeIn 2s ease-in-out;
     }
     .hero h1 {
       font-size: clamp(1.8rem, 6vw, 2.8rem);
@@ -115,6 +116,20 @@
     }
     .btn:hover { background: #ff6f61; color: #fff; }
 
+    /* Animaciones */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes slideInDown {
+      from {transform: translateY(-50px); opacity:0;}
+      to {transform: translateY(0); opacity:1;}
+    }
+    @keyframes slideInUp {
+      from {transform: translateY(50px); opacity:0;}
+      to {transform: translateY(0); opacity:1;}
+    }
+
     footer {
       padding: 16px;
       text-align: center;
@@ -129,10 +144,10 @@
 
   <canvas id="confetti"></canvas>
 
-  <header class="hero">
+  <div class="hero">
     <h1>Falta poco para celebrar a lo grande...</h1>
     <p>Reserva en tu calendario el 25 de octubre de 2025 ;)</p>
-  </header>
+  </div>
 
   <section class="card" aria-label="Cuenta atrás hacia la fecha del evento">
     <div class="countdown-wrapper" id="countdown">
