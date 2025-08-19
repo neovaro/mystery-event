@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ACE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    /* ====== Base / Tema oscuro ====== */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background: #0000009c; /* Fondo oscuro */
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Canvas del fondo (confeti) */
+    canvas#confetti {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      margin: 0;
+    }
+    .hero p {
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    /* Tarjeta */
+    .card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    /* ====== Cuenta atrás ====== */
+    .countdown-wrapper {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      justify-items: center;
+      margin-top: 10px;
+    }
+
+    .time-box {
+      width: 100%;
+      min-width: 120px;
+      aspect-ratio: 4 / 3;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .value {
+      font-weight: 700;
+      font-size: clamp(2rem, 12vw, 3.5rem);
+      line-height: 1;
+    }
+
+    .label {
+      position: absolute;
+      bottom: 8px;
+      left: 0; right: 0;
+      font-size: clamp(0.7rem, 3vw, 0.9rem);
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+
+    /* Botón */
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      border-radius: 28px;
+      background: #fff;
+      color: #ff6f61;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+    }
+    .btn:hover { background: #ff6f61; color: #fff; }
+
+    footer {
+      padding: 16px;
+      text-align: center;
+      font-size: 0.8rem;
+      background: rgba(0,0,0,0.6);
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="config" data-target-date="2025-10-24T13:00:00"></div>
+
+  <canvas id="confetti"></canvas>
+
+  <header class="hero">
+    <h1>Falta muy poco para celebrar a lo grande...</h1>
+  </header>
+
+  <section class="card" aria-label="Cuenta atrás hacia la fecha del evento">
+    <div class="countdown-wrapper" id="countdown">
+      <div class="time-box">
+        <div class="value" id="days">0</div>
+        <div class="label">Días</div>
+      </div>
+      <div class="time-box">
+        <div class="value" id="hours">0</div>
+        <div class="label">Horas</div>
+      </div>
+      <div class="time-box">
+        <div class="value" id="minutes">0</div>
+        <div class="label">Minutos</div>
+      </div>
+      <div class="time-box">
+        <div class="value" id="seconds">0</div>
+        <div class="label">Segundos</div>
+      </div>
+    </div>
+    <!--<a class="btn" href="#" id="addCalendar">Añadir al calendario</a>-->
+  </section>
+
+  <footer>
+    <p>Hecho con ❤️</p>
+  </footer>
+
+  <script>
+    /* Confeti */
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let confettis = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.size = Math.random() * 6 + 4;
+        const hues = [10, 35, 200, 265, 310, 150];
+        this.color = `hsl(${hues[Math.floor(Math.random() * hues.length)]}, 95%, 60%)`;
+        this.speed = Math.random() * 1 + 0.4;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 3 - 1.5;
+      }
+      update() {
+        this.y += this.speed;
+        this.rotation += this.rotationSpeed;
+        if (this.y > canvas.height) {
+          this.y = -10; this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.save(); ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+    function initConfetti() { confettis=[]; for (let i=0;i<120;i++) confettis.push(new Confetti()); }
+    function animateConfetti() { ctx.clearRect(0,0,canvas.width,canvas.height); confettis.forEach(c=>{c.update();c.draw();}); requestAnimationFrame(animateConfetti); }
+    initConfetti(); animateConfetti();
+
+    /* Cuenta atrás */
+    const cfgEl=document.getElementById('config');
+    const targetDate=new Date(cfgEl.getAttribute('data-target-date'));
+    const $days=document.getElementById('days');
+    const $hours=document.getElementById('hours');
+    const $minutes=document.getElementById('minutes');
+    const $seconds=document.getElementById('seconds');
+    function updateCountdown(){
+      const now=new Date(); let diff=targetDate-now;
+      if(isNaN(targetDate.getTime())||diff<=0){$days.textContent=$hours.textContent=$minutes.textContent=$seconds.textContent='0';return;}
+      const sec=Math.floor(diff/1000)%60;
+      const min=Math.floor(diff/(1000*60))%60;
+      const hr=Math.floor(diff/(1000*60*60))%24;
+      const day=Math.floor(diff/(1000*60*60*24));
+      $days.textContent=day; $hours.textContent=hr.toString().padStart(2,'0'); $minutes.textContent=min.toString().padStart(2,'0'); $seconds.textContent=sec.toString().padStart(2,'0');
+    }
+    updateCountdown(); setInterval(updateCountdown,1000);
+
+    /* Botón añadir calendario */
+    document.getElementById('addCalendar').addEventListener('click',function(e){
+      e.preventDefault(); if(isNaN(targetDate.getTime())) return;
+      const dtStart=new Date(targetDate);
+      const dtEnd=new Date(targetDate.getTime()+2*60*60*1000);
+      const pad=(n)=>String(n).padStart(2,'0');
+      const toICSDate=(d)=> d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';
+      const ics=`BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:${Date.now()}@countdown\nDTSTAMP:${toICSDate(new Date())}\nDTSTART:${toICSDate(dtStart)}\nDTEND:${toICSDate(dtEnd)}\nSUMMARY:Despedida de los 20\nDESCRIPTION:¡A celebrar en grande!\nEND:VEVENT\nEND:VCALENDAR`;
+      const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download='despedida-20-calendario.ics'; document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
