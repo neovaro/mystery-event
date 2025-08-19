@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+      position: relative;
+      background: #0000009c; /* fondo oscuro */
+    }
+
+    /* Canvas fondo */
+    canvas#confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    section {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      animation: fadeIn 2s ease-in-out;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      animation: slideInDown 1.5s ease-out;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      animation: slideInUp 2s ease-out;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    /* Botón */
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 25px;
+      border-radius: 30px;
+      background: #fff;
+      color: #ff6f61;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #ff6f61;
+      color: #fff;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes slideInDown {
+      from {transform: translateY(-50px); opacity:0;}
+      to {transform: translateY(0); opacity:1;}
+    }
+    @keyframes slideInUp {
+      from {transform: translateY(50px); opacity:0;}
+      to {transform: translateY(0); opacity:1;}
+    }
+
+    /* Footer */
+    footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      background: rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fondo animado -->
+  <canvas id="confetti"></canvas>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>🎉 Se viene algo grande... 🎉</h1>
+  </div>
+
+  <!-- Cuándo y Dónde -->
+  <section>
+    <div class="card">
+      <h2>📅 Cuándo</h2>
+      <p>Sábado, 25 de octubre de 2025</p>
+      <h2>📍 Dónde</h2>
+      <p>A 30 minutos en coche de Santander</p>
+    </div>
+  </section>
+
+  <!-- Confirmación -->
+  <!--
+  <section>
+    <div class="card">
+      <h2>✅ Confirma tu asistencia</h2>
+      <p>Haz clic abajo para confirmar tu asistencia.</p>
+      <a href="mailto:tuemail@ejemplo.com?subject=Confirmo asistencia a la fiesta" class="btn">Próximamente</a>
+    </div>
+  </section>
+ -->
+  <!-- Footer -->
+  <footer>
+    <p>Hecho con ❤️</p>
+  </footer>
+
+  <!-- Script confeti -->
+  <script>
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+    let confettis = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.size = Math.random() * 8 + 5;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        this.speed = Math.random() * 1.5 + 0.5; // más lento
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 5 - 2.5; // rotación más suave
+      }
+      update() {
+        this.y += this.speed;
+        this.rotation += this.rotationSpeed;
+        if (this.y > canvas.height) {
+          this.y = -10;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation * Math.PI / 180);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+
+    function initConfetti() {
+      confettis = [];
+      for (let i = 0; i < 150; i++) {
+        confettis.push(new Confetti());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettis.forEach(c => {
+        c.update();
+        c.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    initConfetti();
+    animate();
+  </script>
+</body>
+</html>
